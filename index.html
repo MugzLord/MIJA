@@ -98,9 +98,8 @@
   </div>
 
   <div class="header">
-    <h1>MIJAVU</h1>
-    <p>My Identity. Just Avatar.</p>
-  </div>
+  <img src="mijavu.png" alt="MIJAVU Banner" style="width: 100%; max-width: 1000px; border-radius: 12px; margin-bottom: 20px;" />
+</div>
 
   <div class="main">
     <div class="room-selector">
@@ -144,11 +143,22 @@
     document.getElementById('room').value = currentRoom;
 
     function updateChatDisplay() {
-      const chatBox = document.getElementById('chatBox');
-      chatBox.innerHTML = '';
-      messages.filter(m => m.room === currentRoom).forEach(m => {
-        const msg = document.createElement('p');
-        msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML = '';
+  const filtered = messages.filter(m => m.room === currentRoom);
+  if (filtered.length === 0) {
+    chatBox.innerHTML = '<p style="color:gray;">No messages yet. Start chatting!</p>';
+  } else {
+    filtered.forEach(m => {
+      const msg = document.createElement('p');
+      msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+      chatBox.appendChild(msg);
+    });
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+  console.log('Messages:', messages);
+  console.log('Current Room:', currentRoom);
+}:</strong> ${m.text}`;
         chatBox.appendChild(msg);
       });
       chatBox.scrollTop = chatBox.scrollHeight;
