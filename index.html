@@ -14,36 +14,30 @@
       flex-direction: column;
       align-items: center;
     }
-
     .header {
       text-align: center;
       margin: 20px 0;
     }
-
     .main {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 30px;
     }
-
     .avatar-profile {
       text-align: center;
     }
-
     .avatar {
       width: 150px;
       border-radius: 50%;
       border: 3px solid #fff;
     }
-
     input, select {
       padding: 10px;
       margin: 5px;
       border: none;
       border-radius: 5px;
     }
-
     button {
       padding: 10px 20px;
       border: none;
@@ -52,12 +46,10 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     .chat-section {
       width: 80%;
       max-width: 500px;
     }
-
     #chatBox {
       height: 200px;
       overflow-y: scroll;
@@ -67,24 +59,20 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
-
     #typingStatus {
       font-size: 0.85em;
       color: #aaa;
       margin-bottom: 10px;
       font-style: italic;
     }
-
     .room-selector {
       margin-bottom: 20px;
     }
-
     footer {
       margin-top: 50px;
       font-size: 0.9em;
       color: #888;
     }
-
     .theme-toggle {
       position: fixed;
       top: 10px;
@@ -96,11 +84,9 @@
   <div class="theme-toggle">
     <button onclick="toggleTheme()">Toggle Theme</button>
   </div>
-
   <div class="header">
-  <img src="/mnt/data/mijavu.png" alt="MIJAVU Banner" style="width: 100%; max-width: 1000px; border-radius: 12px; margin-bottom: 20px;" />
-</div>
-
+    <img src="/mnt/data/mijavu.png" alt="MIJAVU Banner" style="width: 100%; max-width: 1000px; border-radius: 12px; margin-bottom: 20px;" />
+  </div>
   <div class="main">
     <div class="room-selector">
       <label for="room">Choose Room:</label>
@@ -110,7 +96,6 @@
         <option value="arcade">Arcade</option>
       </select>
     </div>
-
     <div class="avatar-profile">
       <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()" />
       <br/>
@@ -124,7 +109,6 @@
       </select>
       <button onclick="applyStyle()">Style Me</button>
     </div>
-
     <div class="chat-section">
       <div id="typingStatus"></div>
       <div id="chatBox"></div>
@@ -132,55 +116,27 @@
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
-
   <footer>
     <p>© 2025 MIJAVU. Made with identity.</p>
   </footer>
-
   <script>
     let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
     let currentRoom = localStorage.getItem('room') || 'lounge';
     document.getElementById('room').value = currentRoom;
 
     function updateChatDisplay() {
-  const chatBox = document.getElementById('chatBox');
-  chatBox.innerHTML = '';
-  const filtered = messages.filter(m => m.room === currentRoom);
-  if (filtered.length === 0) {
-    chatBox.innerHTML = '<p style="color:gray;">No messages yet. Start chatting!</p>';
-  } else {
-    filtered.forEach(m => {
-      const msg = document.createElement('p');
-      msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
-      chatBox.appendChild(msg);
-    });
-  }
-  chatBox.scrollTop = chatBox.scrollHeight;
-  console.log('Messages:', messages);
-  console.log('Current Room:', currentRoom);
-} else {
-    filtered.forEach(m => {
-      const msg = document.createElement('p');
-      msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
-      chatBox.appendChild(msg);
-    });
-  }
-  chatBox.scrollTop = chatBox.scrollHeight;
-  console.log('Messages:', messages);
-  console.log('Current Room:', currentRoom);
-} else {
-    filtered.forEach(m => {
-      const msg = document.createElement('p');
-      msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
-      chatBox.appendChild(msg);
-    });
-  }
-  chatBox.scrollTop = chatBox.scrollHeight;
-  console.log('Messages:', messages);
-  console.log('Current Room:', currentRoom);
-}:</strong> ${m.text}`;
-        chatBox.appendChild(msg);
-      });
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '';
+      const filtered = messages.filter(m => m.room === currentRoom);
+      if (filtered.length === 0) {
+        chatBox.innerHTML = '<p style="color:gray;">No messages yet. Start chatting!</p>';
+      } else {
+        filtered.forEach(m => {
+          const msg = document.createElement('p');
+          msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+          chatBox.appendChild(msg);
+        });
+      }
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
@@ -237,7 +193,7 @@
     }
 
     function toggleTheme() {
-      const isDark = document.body.style.background === '#111';
+      const isDark = document.body.style.background === 'rgb(17, 17, 17)' || document.body.style.background === '#111';
       if (isDark) {
         document.body.style.background = '#f9f9f9';
         document.body.style.color = '#000';
@@ -253,16 +209,15 @@
       updateChatDisplay();
     }
 
-    window.onload = updateChatDisplay;
-    document.getElementById('chatInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-      sendMessage();
-    }
-  });
-</script>
+    window.onload = () => {
+      updateChatDisplay();
+      document.getElementById('chatInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    };
+  </script>
 </body>
 </html>
