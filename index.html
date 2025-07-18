@@ -84,6 +84,10 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .reaction-buttons button {
+      margin-right: 5px;
+      cursor: pointer;
+    }
     footer {
       text-align: center;
       margin-top: 50px;
@@ -178,8 +182,13 @@
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
       if (!message) return;
-      db.ref(`rooms/${currentRoom}/messages`).push({ user: currentUser, text: message });
+      db.ref(`rooms/${currentRoom}/messages`).push({ user: currentUser, text: message, reactions: {} });
       input.value = '';
+    }
+
+    function addReaction(messageId, emoji) {
+      const reactionRef = db.ref(`rooms/${currentRoom}/messages/${messageId}/reactions/${currentUser}`);
+      reactionRef.set(emoji);
     }
 
     function listenForMessages() {
@@ -189,8 +198,30 @@
         chatBox.innerHTML = '';
         for (let key in messages) {
           const msg = messages[key];
-          const p = document.createElement('p');
-          p.innerHTML = `<strong>${msg.user}:</strong> ${msg.text} <span class="reactions">❤️ 😂 😮</span>`;
+          const p = document.createElement('div');
+          p.innerHTML = `<p><strong>${msg.user}:</strong> ${msg.text}</p>`;
+
+          const reactionsDiv = document.createElement('div');
+          reactionsDiv.className = 'reaction-buttons';
+
+          ['❤️', '😂', '😮'].forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.textContent = emoji;
+            btn.onclick = () => addReaction(key, emoji);
+            reactionsDiv.appendChild(btn);
+          });
+
+          // Show current reactions (if any)
+          if (msg.reactions) {
+            const current = Object.values(msg.reactions).join(' ');
+            const summary = document.createElement('div');
+            summary.textContent = `Reactions: ${current}`;
+            summary.style.fontSize = '0.85em';
+            summary.style.marginTop = '4px';
+            reactionsDiv.appendChild(summary);
+          }
+
+          p.appendChild(reactionsDiv);
           chatBox.appendChild(p);
         }
         chatBox.scrollTop = chatBox.scrollHeight;
