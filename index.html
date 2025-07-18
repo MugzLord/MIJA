@@ -1,159 +1,229 @@
-<!-- MIJA Virtual Hangout Template with Avatar Setup Wizard -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MIJA Hangout</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIJAVU - My Identity. Just Avatar.</title>
   <style>
-    body { margin: 0; font-family: sans-serif; background: #0f0f0f; }
-    .centered-box { width: 100%; max-width: 500px; margin: 50px auto; background: #1e1e1e; padding: 20px; color: white; border-radius: 5px; text-align: center; }
-    .centered-box input, .centered-box button { width: 85%; padding: 10px; margin: 10px 0; border: none; border-radius: 3px; font-size: 16px; }
-    .centered-box button { background: #d4a038; color: white; font-weight: bold; cursor: pointer; }
-    .centered-box button:hover { background: #f0b846; }
-    .avatar-select { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
-    .avatar-select div { cursor: pointer; }
-    .avatar-select img { width: 120px; border: 2px solid transparent; border-radius: 5px; }
-    .avatar-select img.selected { border-color: #d4a038; }
-    #room { display: none; position: relative; width: 100vw; height: 70vh; background: url('https://i.imgur.com/tROtcaN.jpg') center/cover no-repeat; overflow: hidden; }
-    .avatar { position: absolute; bottom: 0; width: 80px; text-align: center; }
-    #chat-container { display: none; }
-    #chat-box { height: 30vh; padding: 10px; background: #fff; border-top: 1px solid #ccc; overflow-y: auto; font-size: 14px; line-height: 1.5; }
-    #chat-input { display: flex; border-top: 1px solid #ccc; background: #fff; }
-    #chat-input input { flex: 1; padding: 10px; border: none; font-size: 14px; outline: none; }
-    #chat-input button { padding: 10px 20px; background: #333; color: white; border: none; cursor: pointer; }
-    #chat-input button:hover { background: #555; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .avatar-profile {
+      text-align: center;
+    }
+
+    .avatar {
+      width: 150px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+    }
+
+    input, select {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #ff5c8a;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .chat-section {
+      width: 80%;
+      max-width: 500px;
+    }
+
+    #chatBox {
+      height: 200px;
+      overflow-y: scroll;
+      background: #222;
+      border: 1px solid #444;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    #typingStatus {
+      font-size: 0.85em;
+      color: #aaa;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .room-selector {
+      margin-bottom: 20px;
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+    }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
-      authDomain: "mijamo.firebaseapp.com",
-      databaseURL: "https://mijamo-default-rtdb.firebaseio.com",
-      projectId: "mijamo",
-      storageBucket: "mijamo.firebasestorage.app",
-      messagingSenderId: "911250193846",
-      appId: "1:911250193846:web:410aa7fc6a3d3b8ca45517",
-      measurementId: "G-63XP728184"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const chatRef = ref(db, "messages");
-
-    let userName = "";
-    let gender = "";
-    let avatar = "";
-    let lastMsgTime = 0;
-
-    window.selectGender = function(g) {
-      gender = g;
-      document.getElementById("step-gender").style.display = "none";
-      document.getElementById("step-username").style.display = "block";
-    };
-
-    window.goToAvatarStep = function() {
-      const name = document.getElementById("login-name").value.trim();
-      userName = name || "User" + Math.floor(Math.random() * 1000);
-      document.getElementById("step-username").style.display = "none";
-      document.getElementById("step-avatar").style.display = "block";
-    };
-
-    window.selectAvatar = function(img) {
-      document.querySelectorAll(".avatar-select img").forEach(el => el.classList.remove("selected"));
-      img.classList.add("selected");
-      avatar = img.getAttribute("src");
-    };
-
-    window.startChat = function() {
-      if (!avatar) return alert("Please select an avatar.");
-
-      document.getElementById("my-name").textContent = userName;
-      document.getElementById("avatar1").innerHTML = `<img src="${avatar}" style="width:80px;"><div>${userName}</div>`;
-      document.getElementById("step-avatar").style.display = "none";
-      document.getElementById("room").style.display = "block";
-      document.getElementById("chat-container").style.display = "block";
-      document.getElementById("chat-box").innerHTML = '';
-
-      onChildAdded(chatRef, (data) => {
-        const msg = data.val();
-        if (!msg.name || !msg.text) return;
-        if (msg.time <= lastMsgTime) return; // Only show messages after this user joined
-        lastMsgTime = Date.now();
-
-        const msgDiv = document.createElement('div');
-        msgDiv.textContent = `${msg.name}: ${msg.text}`;
-        document.getElementById('chat-box').appendChild(msgDiv);
-        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-      });
-    };
-
-    window.sendMessage = function() {
-      const message = document.getElementById('message').value;
-      if (message.trim() === '') return;
-      push(chatRef, {
-        name: userName,
-        text: message,
-        time: Date.now(),
-        gender,
-        avatar
-      });
-      document.getElementById('message').value = '';
-    };
-  </script>
 </head>
 <body>
-  <div id="step-gender" class="centered-box">
-    <h3>STEP 1 OF 4: SELECT GENDER</h3>
-    <div class="avatar-select">
-      <div onclick="selectGender('female')">
-        <img src="https://i.imgur.com/LEgUJSb.png" alt="Female Avatar">
-        <div>Female</div>
-      </div>
-      <div onclick="selectGender('male')">
-        <img src="https://i.imgur.com/Q1m4SlT.png" alt="Male Avatar">
-        <div>Male</div>
-      </div>
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+
+  <div class="header">
+    <h1>MIJAVU</h1>
+    <p>My Identity. Just Avatar.</p>
+  </div>
+
+  <div class="main">
+    <div class="room-selector">
+      <label for="room">Choose Room:</label>
+      <select id="room" onchange="changeRoom()">
+        <option value="lounge">Lounge</option>
+        <option value="studio">Studio</option>
+        <option value="arcade">Arcade</option>
+      </select>
     </div>
-  </div>
 
-  <div id="step-username" class="centered-box" style="display:none;">
-    <h3>STEP 2 OF 4: CHOOSE NAME</h3>
-    <input type="text" id="login-name" placeholder="Enter your username">
-    <button onclick="goToAvatarStep()">Continue</button>
-  </div>
-
-  <div id="step-avatar" class="centered-box" style="display:none;">
-    <h3>STEP 3 OF 4: CHOOSE AVATAR</h3>
-    <div class="avatar-select">
-      <img src="https://i.imgur.com/B4vW1tb.png" onclick="selectAvatar(this)">
-      <img src="https://i.imgur.com/RFYRJds.png" onclick="selectAvatar(this)">
-      <img src="https://i.imgur.com/x5eUxxd.png" onclick="selectAvatar(this)">
+    <div class="avatar-profile">
+      <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()" />
+      <br/>
+      <img src="assets/default_avatar.png" alt="Avatar" class="avatar" id="avatarDisplay"/>
+      <input type="text" id="username" placeholder="Enter your name" />
+      <select id="styleSelector">
+        <option value="default">Default</option>
+        <option value="goth">Goth</option>
+        <option value="cute">Cute</option>
+        <option value="retro">Retro</option>
+      </select>
+      <button onclick="applyStyle()">Style Me</button>
     </div>
-    <button onclick="startChat()">Join Chat</button>
-  </div>
 
-  <div id="room">
-    <div class="avatar" id="avatar1" style="left: 20%;"></div>
-  </div>
-
-  <div id="chat-container">
-    <div id="chat-box"></div>
-    <div id="chat-input">
-      <input type="text" id="message" placeholder="Type a message...">
+    <div class="chat-section">
+      <div id="typingStatus"></div>
+      <div id="chatBox"></div>
+      <input type="text" id="chatInput" placeholder="Say something..." oninput="showTyping()" />
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
+  <footer>
+    <p>© 2025 MIJAVU. Made with identity.</p>
+  </footer>
+
   <script>
-    document.getElementById("message").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
+    let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+    let currentRoom = localStorage.getItem('room') || 'lounge';
+    document.getElementById('room').value = currentRoom;
+
+    function updateChatDisplay() {
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '';
+      messages.filter(m => m.room === currentRoom).forEach(m => {
+        const msg = document.createElement('p');
+        msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+        chatBox.appendChild(msg);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const username = document.getElementById('username').value || 'Anon';
+      if (input.value.trim() !== '') {
+        messages.push({ room: currentRoom, user: username, text: input.value });
+        localStorage.setItem('chatMessages', JSON.stringify(messages));
+        updateChatDisplay();
+        input.value = '';
+        document.getElementById('typingStatus').innerText = '';
       }
-    });
+    }
+
+    function applyStyle() {
+      const selected = document.getElementById('styleSelector').value;
+      const avatar = document.getElementById('avatarDisplay');
+      switch (selected) {
+        case 'goth':
+          avatar.style.border = '3px solid #660033';
+          document.body.style.background = '#1a1a1a';
+          break;
+        case 'cute':
+          avatar.style.border = '3px dashed pink';
+          document.body.style.background = '#fff0f5';
+          break;
+        case 'retro':
+          avatar.style.border = '3px double orange';
+          document.body.style.background = '#fefbd8';
+          break;
+        default:
+          avatar.style.border = '3px solid #fff';
+          document.body.style.background = '#111';
+      }
+    }
+
+    function showTyping() {
+      const username = document.getElementById('username').value || 'Someone';
+      document.getElementById('typingStatus').innerText = `${username} is typing...`;
+      clearTimeout(window.typingTimeout);
+      window.typingTimeout = setTimeout(() => {
+        document.getElementById('typingStatus').innerText = '';
+      }, 2000);
+    }
+
+    function previewAvatar() {
+      const file = document.getElementById('avatarUpload').files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById('avatarDisplay').src = e.target.result;
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.style.background === '#111';
+      if (isDark) {
+        document.body.style.background = '#f9f9f9';
+        document.body.style.color = '#000';
+      } else {
+        document.body.style.background = '#111';
+        document.body.style.color = '#fff';
+      }
+    }
+
+    function changeRoom() {
+      currentRoom = document.getElementById('room').value;
+      localStorage.setItem('room', currentRoom);
+      updateChatDisplay();
+    }
+
+    window.onload = updateChatDisplay;
   </script>
 </body>
 </html>
