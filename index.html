@@ -171,9 +171,9 @@
       currentRoom = room;
       localStorage.setItem('mijavu_room', room);
       db.ref(`rooms/${room}/users/${currentUser}`).set({ avatar: getAvatarUrl(currentUser) });
+      db.ref(`rooms/${room}/messages`).remove(); // Remove all old messages
       document.getElementById('roomModal').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
-      db.ref(`rooms/${room}/messages`).remove();
       listenForMessages();
       listenForUsers();
     }
@@ -211,7 +211,6 @@
             reactionsDiv.appendChild(btn);
           });
 
-          // Show current reactions (if any)
           if (msg.reactions) {
             const current = Object.values(msg.reactions).join(' ');
             const summary = document.createElement('div');
