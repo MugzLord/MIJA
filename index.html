@@ -22,7 +22,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, remove, set } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
@@ -39,33 +39,32 @@
     const db = getDatabase(app);
     const chatRef = ref(db, "messages");
 
-    let userName = "Mike";
+    let userName = "";
+    let sessionMessages = [];
 
     window.sendMessage = function() {
       const message = document.getElementById('message').value;
       if (message.trim() === '') return;
-      push(chatRef, `${userName}: ${message}`);
+      const fullMessage = `${userName}: ${message}`;
+      push(chatRef, fullMessage);
       document.getElementById('message').value = '';
+      displayMessage(fullMessage);
     };
+
+    function displayMessage(msg) {
+      const msgDiv = document.createElement('div');
+      msgDiv.textContent = msg;
+      document.getElementById('chat-box').appendChild(msgDiv);
+      document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+    }
 
     window.login = function() {
       const inputName = document.getElementById("login-name").value.trim();
-      userName = inputName || "Mike";
+      userName = inputName || "User" + Math.floor(Math.random() * 1000);
       document.getElementById("my-name").textContent = userName;
       document.getElementById("login-box").style.display = "none";
       document.getElementById("room").style.display = "block";
       document.getElementById("chat-container").style.display = "block";
-
-      // Clear existing messages
-      document.getElementById('chat-box').innerHTML = '';
-
-      // Load messages AFTER login
-      onChildAdded(chatRef, (data) => {
-        const msgDiv = document.createElement('div');
-        msgDiv.textContent = data.val();
-        document.getElementById('chat-box').appendChild(msgDiv);
-        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-      });
     }
   </script>
 </head>
@@ -78,10 +77,7 @@
 
   <div id="room">
     <div class="avatar" id="avatar1" style="left: 20%;">
-      <div id="my-name">Mike</div>
-    </div>
-    <div class="avatar" id="avatar2" style="left: 60%;">
-      <div>User2</div>
+      <div id="my-name"></div>
     </div>
   </div>
 
