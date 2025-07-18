@@ -103,7 +103,7 @@
 </head>
 <body>
   <a href="/">
-    <img src="/mnt/data/mijavu.png" alt="MIJAVU - My Identity. Just Avatar." class="banner" />
+    <img src="mijavu.png" alt="MIJAVU - My Identity. Just Avatar." class="banner" />
   </a>
 
   <div class="modal" id="nameModal">
@@ -134,121 +134,5 @@
   <footer>
     <p>© 2025 MIJAVU. Made with identity.</p>
   </footer>
-
-  <script>
-    function getAvatarUrl(name) {
-      return `https://robohash.org/${encodeURIComponent(name)}.png?set=set4`;
-    }
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
-      authDomain: "mijamo.firebaseapp.com",
-      databaseURL: "https://mijamo-default-rtdb.firebaseio.com",
-      projectId: "mijamo",
-      storageBucket: "mijamo.firebasestorage.app",
-      messagingSenderId: "911250193846",
-      appId: "1:911250193846:web:410aa7fc6a3d3b8ca45517",
-      measurementId: "G-63XP728184"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let currentUser = '';
-    let currentRoom = '';
-
-    document.getElementById('continueBtn').addEventListener('click', submitName);
-    document.getElementById('nameInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') submitName();
-    });
-
-    function submitName() {
-      const name = document.getElementById('nameInput').value.trim();
-      if (name) {
-        currentUser = name;
-        localStorage.setItem('mijavu_user', name);
-        document.getElementById('nameModal').classList.add('hidden');
-        document.getElementById('roomModal').classList.remove('hidden');
-      }
-    }
-
-    function submitRoom() {
-      const room = document.getElementById('roomSelect').value;
-      currentRoom = room;
-      localStorage.setItem('mijavu_room', room);
-
-      db.ref(`rooms/${room}`).set({ messages: null, users: {} }).then(() => {
-        db.ref(`rooms/${room}/users/${currentUser}`).set({ avatar: getAvatarUrl(currentUser) });
-      });
-
-      document.getElementById('roomModal').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-      listenForMessages();
-      listenForUsers();
-    }
-
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const message = input.value.trim();
-      if (!message) return;
-      db.ref(`rooms/${currentRoom}/messages`).push({ user: currentUser, text: message, reactions: {} });
-      input.value = '';
-    }
-
-    function addReaction(messageId, emoji) {
-      const reactionRef = db.ref(`rooms/${currentRoom}/messages/${messageId}/reactions/${currentUser}`);
-      reactionRef.set(emoji);
-    }
-
-    function listenForMessages() {
-      db.ref(`rooms/${currentRoom}/messages`).on('value', snapshot => {
-        const messages = snapshot.val();
-        const chatBox = document.getElementById('chatBox');
-        chatBox.innerHTML = '';
-        for (let key in messages) {
-          const msg = messages[key];
-          const p = document.createElement('div');
-          p.innerHTML = `<p><strong>${msg.user}:</strong> ${msg.text}</p>`;
-
-          const reactionsDiv = document.createElement('div');
-          reactionsDiv.className = 'reaction-buttons';
-
-          ['❤️', '😂', '😮'].forEach(emoji => {
-            const btn = document.createElement('button');
-            btn.textContent = emoji;
-            btn.onclick = () => addReaction(key, emoji);
-            reactionsDiv.appendChild(btn);
-          });
-
-          if (msg.reactions) {
-            const current = Object.values(msg.reactions).join(' ');
-            const summary = document.createElement('div');
-            summary.textContent = `Reactions: ${current}`;
-            summary.style.fontSize = '0.85em';
-            summary.style.marginTop = '4px';
-            reactionsDiv.appendChild(summary);
-          }
-
-          p.appendChild(reactionsDiv);
-          chatBox.appendChild(p);
-        }
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
-    }
-
-    function listenForUsers() {
-      db.ref(`rooms/${currentRoom}/users`).on('value', snapshot => {
-        const users = snapshot.val();
-        const usersBox = document.getElementById('usersInRoom');
-        usersBox.innerHTML = '<strong>In room:</strong><br>';
-        if (users) {
-          Object.keys(users).forEach(user => {
-            const div = document.createElement('div');
-            div.innerHTML = `<img src="${users[user].avatar}" class="avatar" style="width:40px;height:40px;margin-right:5px;vertical-align:middle"> ${user}`;
-            usersBox.appendChild(div);
-          });
-        }
-      });
-    }
-  </script>
 </body>
 </html>
