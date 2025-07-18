@@ -1,4 +1,4 @@
-<!-- MIJA Virtual Hangout Template (Basic Room + Chat UI) -->
+<!-- MIJA Virtual Hangout Template (With Firebase Realtime Chat) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +7,7 @@
   <title>MIJA Hangout</title>
   <style>
     body { margin: 0; font-family: sans-serif; background: #f0f0f0; }
-    #room { position: relative; width: 100vw; height: 70vh; background: url('https://i.imgur.com/yU7zX0B.png') center/cover no-repeat; overflow: hidden; }
+    #room { position: relative; width: 100vw; height: 70vh; background: url('https://i.imgur.com/tROtcaN.jpg') center/cover no-repeat; overflow: hidden; }
     .avatar { position: absolute; bottom: 0; width: 80px; text-align: center; }
     .avatar img { width: 80px; height: auto; }
     #chat-box { height: 30vh; padding: 10px; background: #fff; border-top: 1px solid #ccc; overflow-y: auto; }
@@ -15,6 +15,42 @@
     #chat-input input { flex: 1; padding: 10px; border: 1px solid #ccc; }
     #chat-input button { padding: 10px; background: #333; color: white; border: none; }
   </style>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
+      authDomain: "mijamo.firebaseapp.com",
+      databaseURL: "https://mijamo-default-rtdb.firebaseio.com",
+      projectId: "mijamo",
+      storageBucket: "mijamo.firebasestorage.app",
+      messagingSenderId: "911250193846",
+      appId: "1:911250193846:web:410aa7fc6a3d3b8ca45517",
+      measurementId: "G-63XP728184"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const chatRef = ref(db, "messages");
+
+    // Add messages to DOM
+    onChildAdded(chatRef, (data) => {
+      const msgDiv = document.createElement('div');
+      msgDiv.textContent = data.val();
+      document.getElementById('chat-box').appendChild(msgDiv);
+      document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+    });
+
+    // Make sendMessage global for button
+    window.sendMessage = function() {
+      const message = document.getElementById('message').value;
+      if (message.trim() === '') return;
+      push(chatRef, `You: ${message}`);
+      document.getElementById('message').value = '';
+    };
+  </script>
 </head>
 <body>
 
@@ -34,19 +70,6 @@
     <input type="text" id="message" placeholder="Type a message...">
     <button onclick="sendMessage()">Send</button>
   </div>
-
-  <script>
-    function sendMessage() {
-      const message = document.getElementById('message').value;
-      if (message.trim() === '') return;
-      const chatBox = document.getElementById('chat-box');
-      const msgDiv = document.createElement('div');
-      msgDiv.textContent = `You: ${message}`;
-      chatBox.appendChild(msgDiv);
-      document.getElementById('message').value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  </script>
 
 </body>
 </html>
