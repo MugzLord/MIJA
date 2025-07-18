@@ -12,7 +12,8 @@
     #login-box button { width: 85%; padding: 10px; background: #d4a038; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 3px; }
     #room { display: none; position: relative; width: 100vw; height: 70vh; background: url('https://i.imgur.com/tROtcaN.jpg') center/cover no-repeat; overflow: hidden; }
     .avatar { position: absolute; bottom: 0; width: 80px; text-align: center; }
-    .avatar img { width: 80px; height: auto; border-radius: 50%; border: 2px solid white; background: white; }
+    .avatar img { display: none; }
+    #chat-container { display: none; }
     #chat-box { height: 30vh; padding: 10px; background: #fff; border-top: 1px solid #ccc; overflow-y: auto; font-size: 14px; line-height: 1.5; }
     #chat-input { display: flex; border-top: 1px solid #ccc; background: #fff; }
     #chat-input input { flex: 1; padding: 10px; border: none; font-size: 14px; outline: none; }
@@ -21,7 +22,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, remove, set } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
@@ -38,12 +39,7 @@
     const db = getDatabase(app);
     const chatRef = ref(db, "messages");
 
-    onChildAdded(chatRef, (data) => {
-      const msgDiv = document.createElement('div');
-      msgDiv.textContent = data.val();
-      document.getElementById('chat-box').appendChild(msgDiv);
-      document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-    });
+    let userName = "Mike";
 
     window.sendMessage = function() {
       const message = document.getElementById('message').value;
@@ -58,6 +54,18 @@
       document.getElementById("my-name").textContent = userName;
       document.getElementById("login-box").style.display = "none";
       document.getElementById("room").style.display = "block";
+      document.getElementById("chat-container").style.display = "block";
+
+      // Clear existing messages
+      document.getElementById('chat-box').innerHTML = '';
+
+      // Load messages AFTER login
+      onChildAdded(chatRef, (data) => {
+        const msgDiv = document.createElement('div');
+        msgDiv.textContent = data.val();
+        document.getElementById('chat-box').appendChild(msgDiv);
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+      });
     }
   </script>
 </head>
@@ -70,23 +78,22 @@
 
   <div id="room">
     <div class="avatar" id="avatar1" style="left: 20%;">
-      <img id="my-avatar-img" src="https://i.imgur.com/B5Z9p6W.png" alt="avatar1">
       <div id="my-name">Mike</div>
     </div>
     <div class="avatar" id="avatar2" style="left: 60%;">
-      <img src="https://i.imgur.com/6RhPUvP.png" alt="avatar2">
       <div>User2</div>
     </div>
   </div>
 
-  <div id="chat-box"></div>
-  <div id="chat-input">
-    <input type="text" id="message" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
+  <div id="chat-container">
+    <div id="chat-box"></div>
+    <div id="chat-input">
+      <input type="text" id="message" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
   </div>
 
   <script>
-    let userName = "Mike";
     document.getElementById("message").addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         event.preventDefault();
