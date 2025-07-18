@@ -170,8 +170,12 @@
       const room = document.getElementById('roomSelect').value;
       currentRoom = room;
       localStorage.setItem('mijavu_room', room);
-      db.ref(`rooms/${room}/users/${currentUser}`).set({ avatar: getAvatarUrl(currentUser) });
-      db.ref(`rooms/${room}/messages`).remove(); // Remove all old messages
+
+      // Clear messages and remove all users except current one
+      db.ref(`rooms/${room}`).set({ messages: null, users: {} }).then(() => {
+        db.ref(`rooms/${room}/users/${currentUser}`).set({ avatar: getAvatarUrl(currentUser) });
+      });
+
       document.getElementById('roomModal').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
       listenForMessages();
