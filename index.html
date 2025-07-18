@@ -8,16 +8,6 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #111;<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MIJAVU - My Identity. Just Avatar.</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
       background: #111;
       color: #fff;
       display: flex;
@@ -178,232 +168,7 @@
   chatBox.scrollTop = chatBox.scrollHeight;
   console.log('Messages:', messages);
   console.log('Current Room:', currentRoom);
-}:</strong> ${m.text}`;
-        chatBox.appendChild(msg);
-      });
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const username = document.getElementById('username').value || 'Anon';
-      if (input.value.trim() !== '') {
-        messages.push({ room: currentRoom, user: username, text: input.value });
-        localStorage.setItem('chatMessages', JSON.stringify(messages));
-        updateChatDisplay();
-        input.value = '';
-        document.getElementById('typingStatus').innerText = '';
-      }
-    }
-
-    function applyStyle() {
-      const selected = document.getElementById('styleSelector').value;
-      const avatar = document.getElementById('avatarDisplay');
-      switch (selected) {
-        case 'goth':
-          avatar.style.border = '3px solid #660033';
-          document.body.style.background = '#1a1a1a';
-          break;
-        case 'cute':
-          avatar.style.border = '3px dashed pink';
-          document.body.style.background = '#fff0f5';
-          break;
-        case 'retro':
-          avatar.style.border = '3px double orange';
-          document.body.style.background = '#fefbd8';
-          break;
-        default:
-          avatar.style.border = '3px solid #fff';
-          document.body.style.background = '#111';
-      }
-    }
-
-    function showTyping() {
-      const username = document.getElementById('username').value || 'Someone';
-      document.getElementById('typingStatus').innerText = `${username} is typing...`;
-      clearTimeout(window.typingTimeout);
-      window.typingTimeout = setTimeout(() => {
-        document.getElementById('typingStatus').innerText = '';
-      }, 2000);
-    }
-
-    function previewAvatar() {
-      const file = document.getElementById('avatarUpload').files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => document.getElementById('avatarDisplay').src = e.target.result;
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function toggleTheme() {
-      const isDark = document.body.style.background === '#111';
-      if (isDark) {
-        document.body.style.background = '#f9f9f9';
-        document.body.style.color = '#000';
-      } else {
-        document.body.style.background = '#111';
-        document.body.style.color = '#fff';
-      }
-    }
-
-    function changeRoom() {
-      currentRoom = document.getElementById('room').value;
-      localStorage.setItem('room', currentRoom);
-      updateChatDisplay();
-    }
-
-    window.onload = updateChatDisplay;
-    document.getElementById('chatInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-</script>
-</body>
-</html>
-
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .header {
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 30px;
-    }
-
-    .avatar-profile {
-      text-align: center;
-    }
-
-    .avatar {
-      width: 150px;
-      border-radius: 50%;
-      border: 3px solid #fff;
-    }
-
-    input, select {
-      padding: 10px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      background: #ff5c8a;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .chat-section {
-      width: 80%;
-      max-width: 500px;
-    }
-
-    #chatBox {
-      height: 200px;
-      overflow-y: scroll;
-      background: #222;
-      border: 1px solid #444;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-    }
-
-    #typingStatus {
-      font-size: 0.85em;
-      color: #aaa;
-      margin-bottom: 10px;
-      font-style: italic;
-    }
-
-    .room-selector {
-      margin-bottom: 20px;
-    }
-
-    footer {
-      margin-top: 50px;
-      font-size: 0.9em;
-      color: #888;
-    }
-
-    .theme-toggle {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-    }
-  </style>
-</head>
-<body>
-  <div class="theme-toggle">
-    <button onclick="toggleTheme()">Toggle Theme</button>
-  </div>
-
-  <div class="header">
-  <img src="mijavu.png" alt="MIJAVU Banner" style="width: 100%; max-width: 1000px; border-radius: 12px; margin-bottom: 20px;" />
-</div>
-
-  <div class="main">
-    <div class="room-selector">
-      <label for="room">Choose Room:</label>
-      <select id="room" onchange="changeRoom()">
-        <option value="lounge">Lounge</option>
-        <option value="studio">Studio</option>
-        <option value="arcade">Arcade</option>
-      </select>
-    </div>
-
-    <div class="avatar-profile">
-      <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()" />
-      <br/>
-      <img src="https://i.imgur.com/6VBx3io.png" alt="Avatar" class="avatar" id="avatarDisplay"/>
-      <input type="text" id="username" placeholder="Enter your name" />
-      <select id="styleSelector">
-        <option value="default">Default</option>
-        <option value="goth">Goth</option>
-        <option value="cute">Cute</option>
-        <option value="retro">Retro</option>
-      </select>
-      <button onclick="applyStyle()">Style Me</button>
-    </div>
-
-    <div class="chat-section">
-      <div id="typingStatus"></div>
-      <div id="chatBox"></div>
-      <input type="text" id="chatInput" placeholder="Say something..." oninput="showTyping()" />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <footer>
-    <p>© 2025 MIJAVU. Made with identity.</p>
-  </footer>
-
-  <script>
-    let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-    let currentRoom = localStorage.getItem('room') || 'lounge';
-    document.getElementById('room').value = currentRoom;
-
-    function updateChatDisplay() {
-  const chatBox = document.getElementById('chatBox');
-  chatBox.innerHTML = '';
-  const filtered = messages.filter(m => m.room === currentRoom);
-  if (filtered.length === 0) {
-    chatBox.innerHTML = '<p style="color:gray;">No messages yet. Start chatting!</p>';
-  } else {
+} else {
     filtered.forEach(m => {
       const msg = document.createElement('p');
       msg.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
@@ -489,6 +254,15 @@
     }
 
     window.onload = updateChatDisplay;
-  </script>
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+      sendMessage();
+    }
+  });
+</script>
 </body>
 </html>
