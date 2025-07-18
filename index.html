@@ -22,7 +22,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA_2WIJJiEHr0-PoVfvo4wUq3dH6SOf7q4",
@@ -47,10 +47,6 @@
       const fullMessage = `${userName}: ${message}`;
       push(chatRef, fullMessage);
       document.getElementById('message').value = '';
-      const msgDiv = document.createElement('div');
-      msgDiv.textContent = fullMessage;
-      document.getElementById('chat-box').appendChild(msgDiv);
-      document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     };
 
     window.login = function() {
@@ -61,6 +57,13 @@
       document.getElementById("room").style.display = "block";
       document.getElementById("chat-container").style.display = "block";
       document.getElementById("chat-box").innerHTML = ''; // clear previous messages
+
+      onChildAdded(chatRef, (data) => {
+        const msgDiv = document.createElement('div');
+        msgDiv.textContent = data.val();
+        document.getElementById('chat-box').appendChild(msgDiv);
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+      });
     }
   </script>
 </head>
