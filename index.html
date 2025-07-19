@@ -63,9 +63,17 @@
       color: #fff;
     }
     .hidden { display: none !important; }
+    .banner-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      max-width: 300px;
+      z-index: 15;
+    }
   </style>
 </head>
 <body>
+  <img src="beff6f9c-5688-445f-a0dd-29ba69633f2f.png" alt="MIJAVU Logo" class="banner-logo">
   <div id="sceneContainer" class="hidden"></div>
 
   <div class="modal" id="nameModal">
@@ -97,7 +105,7 @@
     function init3DScene(gender) {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.getElementById('sceneContainer').appendChild(renderer.domElement);
 
@@ -130,8 +138,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
       });
 
-      // Placeholder: Replace cube with avatar model
-      // Ready Player Me integration can be added here
+      // TODO: Integrate Ready Player Me avatar streaming here in place of cube
     }
   </script>
 </body>
