@@ -22,6 +22,10 @@
     #sceneContainer {
       width: 100vw;
       height: 100vh;
+      position: relative;
+    }
+    canvas {
+      display: block;
     }
     .modal {
       position: fixed;
@@ -34,16 +38,16 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 10;
     }
-    .modal input, .modal button {
+    .modal input, .modal button, .modal select {
       padding: 12px;
       margin: 10px;
       font-size: 18px;
       border: none;
       border-radius: 6px;
     }
-    .modal input {
+    .modal input, .modal select {
       width: 250px;
       background: #fff;
       color: #000;
@@ -62,57 +66,72 @@
   </style>
 </head>
 <body>
+  <div id="sceneContainer" class="hidden"></div>
+
   <div class="modal" id="nameModal">
     <h2>Enter your name</h2>
     <input type="text" id="nameInput" placeholder="Your name" />
+    <select id="genderSelect">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
     <button id="continueBtn">Continue</button>
   </div>
-
-  <div id="sceneContainer" class="hidden"></div>
 
   <script>
     let userName = "";
 
     document.getElementById("continueBtn").addEventListener("click", () => {
       const input = document.getElementById("nameInput").value.trim();
+      const gender = document.getElementById("genderSelect").value;
       if (input) {
         userName = input;
         document.getElementById("nameModal").classList.add("hidden");
         document.getElementById("sceneContainer").classList.remove("hidden");
-        initScene();
+        init3DScene(gender);
       } else {
         alert("Please enter your name.");
       }
     });
 
-    function initScene() {
-      const container = document.getElementById("sceneContainer");
+    function init3DScene(gender) {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      container.appendChild(renderer.domElement);
+      document.getElementById('sceneContainer').appendChild(renderer.domElement);
 
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444);
-      light.position.set(0, 20, 0);
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 1, 1);
       scene.add(light);
 
-      const avatarIframe = document.createElement('iframe');
-      avatarIframe.src = `https://demo.readyplayer.me/avatar?frameApi&clearCache&name=${encodeURIComponent(userName)}`;
-      avatarIframe.style.position = "absolute";
-      avatarIframe.style.top = "0";
-      avatarIframe.style.left = "0";
-      avatarIframe.style.width = "100%";
-      avatarIframe.style.height = "100%";
-      avatarIframe.style.border = "none";
-      container.appendChild(avatarIframe);
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
+
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshStandardMaterial({ color: 0xff5c8a });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
 
       camera.position.z = 5;
+
       function animate() {
         requestAnimationFrame(animate);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
         renderer.render(scene, camera);
       }
+
       animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Placeholder: Replace cube with avatar model
+      // Ready Player Me integration can be added here
     }
   </script>
 </body>
