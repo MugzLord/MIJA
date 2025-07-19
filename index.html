@@ -6,6 +6,8 @@
   <title>MIJAVU - My Identity. Just Avatar.</title>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="https://unpkg.com/@readyplayerme/readyplayerme@latest/readyplayerme.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -13,15 +15,13 @@
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background: #111;
+      background: #000;
       color: #fff;
+      overflow: hidden;
     }
-    .banner {
-      width: 100%;
-      max-height: 450px;
-      object-fit: cover;
-      display: block;
-      margin: 0 auto;
+    #sceneContainer {
+      width: 100vw;
+      height: 100vh;
     }
     .modal {
       position: fixed;
@@ -36,104 +36,39 @@
       align-items: center;
       z-index: 9999;
     }
-    .modal input, .modal select, .modal button {
-      padding: 10px;
+    .modal input, .modal button {
+      padding: 12px;
       margin: 10px;
       font-size: 18px;
+      border: none;
+      border-radius: 6px;
     }
     .modal input {
       width: 250px;
+      background: #fff;
+      color: #000;
     }
     .modal button {
       width: 150px;
+      background-color: #ff5c8a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .modal h2 {
+      color: #fff;
     }
     .hidden { display: none !important; }
-    .chat-area {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-      justify-content: flex-end;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    #usersInRoom {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      max-width: 200px;
-      font-size: 0.9em;
-      color: #ccc;
-    }
-    #chatBox {
-      flex-grow: 1;
-      overflow-y: auto;
-      background: #222;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
-    .input-row input {
-      flex: 1;
-      padding: 10px;
-    }
-    .input-row button {
-      padding: 10px;
-      background: #ff5c8a;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .reaction-buttons button {
-      margin-right: 5px;
-      cursor: pointer;
-    }
-    footer {
-      text-align: center;
-      font-size: 0.9em;
-      color: #888;
-      padding: 10px;
-    }
   </style>
 </head>
 <body>
-  <a href="/">
-    <img src="mijavu.png" alt="MIJAVU - My Identity. Just Avatar." class="banner" />
-  </a>
-
   <div class="modal" id="nameModal">
     <h2>Enter your name</h2>
     <input type="text" id="nameInput" placeholder="Your name" />
     <button id="continueBtn">Continue</button>
   </div>
 
-  <div class="modal hidden" id="roomModal">
-    <h2>Select a room</h2>
-    <select id="roomSelect">
-      <option value="lounge">Lounge</option>
-      <option value="studio">Studio</option>
-      <option value="arcade">Arcade</option>
-    </select>
-    <button onclick="submitRoom()">Enter Room</button>
-  </div>
-
-  <div class="chat-area hidden" id="mainApp">
-    <div id="usersInRoom"></div>
-    <div id="chatBox"></div>
-    <div class="input-row">
-      <input type="text" id="chatInput" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendMessage()" />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <footer>
-    <p>© 2025 MIJAVU. Made with identity.</p>
-  </footer>
+  <div id="sceneContainer" class="hidden"></div>
 
   <script>
     let userName = "";
@@ -143,19 +78,41 @@
       if (input) {
         userName = input;
         document.getElementById("nameModal").classList.add("hidden");
-        document.getElementById("roomModal").classList.remove("hidden");
+        document.getElementById("sceneContainer").classList.remove("hidden");
+        initScene();
       } else {
         alert("Please enter your name.");
       }
     });
 
-    function submitRoom() {
-      const room = document.getElementById("roomSelect").value;
-      if (room) {
-        document.getElementById("roomModal").classList.add("hidden");
-        document.getElementById("mainApp").classList.remove("hidden");
-        // Initialize Firebase chat logic or enter the room here
+    function initScene() {
+      const container = document.getElementById("sceneContainer");
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
+
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+      light.position.set(0, 20, 0);
+      scene.add(light);
+
+      const avatarIframe = document.createElement('iframe');
+      avatarIframe.src = `https://demo.readyplayer.me/avatar?frameApi&clearCache&name=${encodeURIComponent(userName)}`;
+      avatarIframe.style.position = "absolute";
+      avatarIframe.style.top = "0";
+      avatarIframe.style.left = "0";
+      avatarIframe.style.width = "100%";
+      avatarIframe.style.height = "100%";
+      avatarIframe.style.border = "none";
+      container.appendChild(avatarIframe);
+
+      camera.position.z = 5;
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
       }
+      animate();
     }
   </script>
 </body>
